@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import requests, json, os, time, sendgrid, sys
 from bs4 import BeautifulSoup as BS
 from sendgrid.helpers.mail import *
