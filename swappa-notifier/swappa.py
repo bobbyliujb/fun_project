@@ -51,10 +51,11 @@ def sendEmail(FROM, TO, subject, emailContent):
 
 def parseHtml(r, url, price, listingIdSet):
     soup = BS(r.text, 'html.parser')
-    listing = soup.find_all('div', class_='listing_preview')
+    section_main = soup.find(id='section_main')     # only search for on sale ones
+    listing = section_main.find_all('div', class_='listing_preview')
     i = 0
     arr = []
-    while i < len(listing) - 5:         # exclude last five sold ones
+    while i < len(listing):
         temp = '${}\t{}\t{}\t{}{}'.format(listing[i]['data-price'], listing[i]['data-condition'], listing[i].div.div.find(class_='headline').a.text, url, listing[i]['data-url'])
         # print(temp)
         if int(listing[i]['data-price']) <= price and not listing[i]['data-date'] in listingIdSet:
@@ -64,22 +65,33 @@ def parseHtml(r, url, price, listingIdSet):
     return getText(arr)
 
 def main():
-    url = 'https://swappa.com/buy/samsung-galaxy-s7-edge-att'
-    FROM = os.environ['GOOGLE_ACCOUNT']
-    TO = os.environ.get('TARGET_GOOGLE_ACCOUNT')
+    # url = 'https://swappa.com/buy/samsung-galaxy-s7-edge-att'
+    print(len(sys.argv))
+    if len(sys.argv) < 5:
+        print('Usage: python3 swappa.py <swappa-link> <target-email> <price(integer)> <time-interval(seconds)>')
+        return
+    url = 'https://swappa.com'
+    SWAPPA_LINK = sys.argv[1]
+    FROM = os.environ['FROM_EMAIL']
+    # TO = os.environ.get('TARGET_GOOGLE_ACCOUNT')
+    TO = sys.argv[2]
+    MAX_PRICE = int(sys.argv[3])
+    TIME_INTERVAL = int(sys.argv[4])
+    TEST = sys.argv[-1]     # For test mode, add an argument 'test' at the end of cmd
     SUBJECT = 'Swappa new listing!'
     listingIdSet = set()
 
     while True:
-        r = getResponse(url)
-        emailContent = parseHtml(r, url, 250, listingIdSet)
+        r = getResponse(SWAPPA_LINK)
+        emailContent = parseHtml(r, url, MAX_PRICE, listingIdSet)
         if not emailContent == '':
             print(emailContent)
-            if int(sendEmail(FROM, TO, SUBJECT, emailContent)) == 202:
-                print('Email sent successfully!')
-            else:
-                print('Error when sending email...')
-        time.sleep(600)     # sleep for 600s
+            if not TEST == 'test':
+                if int(sendEmail(FROM, TO, SUBJECT, emailContent)) == 202:
+                    print('Email sent successfully!')
+                else:
+                    print('Error when sending email...')
+        time.sleep(max(TIME_INTERVAL, 300))       # sleep for >= 300s
 
 if __name__ == "__main__":
     main()
