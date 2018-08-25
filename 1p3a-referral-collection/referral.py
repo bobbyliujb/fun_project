@@ -72,7 +72,7 @@ def main():
             page = page + 1
             print("rows: " + str(len(result)))
         driver.close()
-        
+
         row_count = len(result)
         col_count = len(result[0])
         cell_list = wks.range(2, 1, row_count + 1, col_count)

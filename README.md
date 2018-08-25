@@ -19,7 +19,7 @@
 
 ***
 ### Referral Scraping
- * Get referral information from [1p3c](http://www.1point3acres.com/bbs).
+ * Get referral information from [1p3a](http://www.1point3acres.com/bbs).
  * Libraries for python3:
    ```
      pip3 install bs4
@@ -34,4 +34,4 @@
      gcloud config set zone zone-xxx
      gcloud compute --project "project-anme" ssh --zone "zone-xxx" "instance-name"
    ```
- * For personal study only. Never use the data for any kind of business activities! Copyright to 1p3c!
+ * For personal study only. Never use the data for any kind of business activities!
