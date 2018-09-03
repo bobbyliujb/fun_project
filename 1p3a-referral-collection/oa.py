@@ -19,10 +19,15 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
     i = 0
     while i < len(tbody_array):
         if (tbody_array[i].tr.th.em != None 
-            and tbody_array[i].tr.th.em.get_text() == "我这里要招人"
+            and tbody_array[i].tr.th.em.get_text() == "找工就业"
             and tbody_array[i].tr.th.span != None
-            and tbody_array[i].tr.th.span.span != None):
+            and tbody_array[i].tr.th.span.span != None
+            and tbody_array[i].tr.th.find('a', class_ = 's xst') != None
+            and 'oa' in tbody_array[i].tr.th.find('a', class_ = 's xst').get_text().lower()):
             span = tbody_array[i].tr.th.span.span
+            if (span.u == None):
+                i = i + 1
+                continue
             company_name = span.u.find_all('b')[2].get_text().lower()
             if (company_name not in link_count):
                 link_count[company_name] = 0
@@ -38,26 +43,28 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
                 metadata.append(a.get_text())                   # thread title
 
                 result.append(metadata)
-                # temp = '{}\t{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5])
-                # print(temp)
+                temp = '{}\t{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5])
+                print(temp)
 
         i = i + 1
 
     return True
 
 def main():
-    url = 'http://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=198&sortid=192&%1=&sortid=192&page='
+    url = 'http://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=145&sortid=311&%1=&sortid=311&page='
     scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
     if len(sys.argv) < 6:
-        print('Usage: python3 referral.py <max-page-count> <max-link-per-company> <path-to-credentials> <sheet-id> <path-to-chromedriver>')
+        print('Usage: python3 oa.py <max-page-count> <max-link-per-company> <path-to-credentials> <sheet-id> <path-to-chromedriver>')
         return
     MAX_PAGE = int(sys.argv[1])
     MAX_LINK_PER_COMPANY = int(sys.argv[2])
-    
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(sys.argv[3], scope)
+    gc = gspread.authorize(credentials)
     SPREADSHEET_ID = sys.argv[4]
     DRIVER_PATH = sys.argv[5]
+    wks = gc.open_by_key(SPREADSHEET_ID).get_worksheet(1)
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-extensions')
@@ -66,9 +73,6 @@ def main():
     options.add_argument('--no-sandbox')
 
     while True:
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(sys.argv[3], scope)
-        gc = gspread.authorize(credentials)
-        wks = gc.open_by_key(SPREADSHEET_ID).sheet1
         link_count = dict()
         result = []
         page = 1
@@ -76,32 +80,26 @@ def main():
         driver = webdriver.Chrome(DRIVER_PATH, chrome_options=options)
         while page <= MAX_PAGE:
             print("Get webpage for " + url + str(page))
-            try:
-                driver.get(url + str(page))
-            except:
-                continue
+            driver.get(url + str(page))
             if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result) == False):
                 continue
             page = page + 1
             print("rows: " + str(len(result)))
-            time.sleep(15)
+            time.sleep(2)
         driver.quit()
 
-        row_count = len(result)
-        col_count = len(result[0])
-        cell_list = wks.range(2, 1, row_count + 1, col_count)
-        for i in range(row_count):
-            for j in range(col_count):
-                cell_list[i * col_count + j].value = result[i][j]
-        wks.update_cells(cell_list)
+        # row_count = len(result)
+        # col_count = len(result[0])
+        # cell_list = wks.range(2, 1, row_count + 1, col_count)
+        # for i in range(row_count):
+        #     for j in range(col_count):
+        #         cell_list[i * col_count + j].value = result[i][j]
+        # wks.update_cells(cell_list)
 
         # Free memory
         del cell_list
         del result
         del link_count
-        del wks
-        del gc
-        del credentials
 
         print('Start to sleep 3000 seconds...')
         time.sleep(3000)
