@@ -86,12 +86,16 @@ def main():
         driver = webdriver.Chrome(DRIVER_PATH, chrome_options=options)
         while page <= MAX_PAGE:
             print("Get webpage for " + url + str(page))
+            time.sleep(2)
             driver.get(url + str(page))
             if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, TARGET_NAME) == False):
                 continue
             page = page + 1
             print("rows: " + str(len(result)))
-            time.sleep(2)
+
+            if (link_count[TARGET_NAME] == MAX_LINK_PER_COMPANY):
+                break
+
         driver.quit()
 
         row_count = len(result)

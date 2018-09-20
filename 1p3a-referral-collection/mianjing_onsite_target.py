@@ -91,7 +91,7 @@ def main():
         while page <= MAX_PAGE:
             print("Get webpage for " + url + str(page))
             try:
-                time.sleep(5)
+                time.sleep(2)
                 driver.get(url + str(page))
             except:
                 time.sleep(10)
@@ -100,6 +100,8 @@ def main():
                 continue
             page = page + 1
             print("rows: " + str(len(result)))
+            if (link_count[TARGET_NAME] == MAX_LINK_PER_COMPANY):
+                break
         driver.quit()
 
         row_count = len(result)
