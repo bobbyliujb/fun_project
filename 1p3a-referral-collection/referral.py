@@ -77,6 +77,7 @@ def main():
         while page <= MAX_PAGE:
             print("Get webpage for " + url + str(page))
             try:
+                time.sleep(15)
                 driver.get(url + str(page))
             except:
                 continue
@@ -84,7 +85,6 @@ def main():
                 continue
             page = page + 1
             print("rows: " + str(len(result)))
-            time.sleep(15)
         driver.quit()
 
         row_count = len(result)
@@ -103,8 +103,9 @@ def main():
         del gc
         del credentials
 
-        print('Start to sleep 3000 seconds...')
-        time.sleep(3000)
+        # print('Start to sleep 3000 seconds...')
+        # time.sleep(3000)
+        break
 
 if __name__ == "__main__":
     main()

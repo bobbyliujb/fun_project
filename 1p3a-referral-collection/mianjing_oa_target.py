@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as BS
 from selenium import webdriver
 from oauth2client.service_account import ServiceAccountCredentials
 
-def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
+def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, target_name):
     if (driver.page_source == None):
         return False
     soup = BS(driver.page_source, 'html.parser')
@@ -37,7 +37,8 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
             if (company_name not in link_count):
                 link_count[company_name] = 0
 
-            if (link_count[company_name] < MAX_LINK_PER_COMPANY):
+            if (link_count[company_name] < MAX_LINK_PER_COMPANY
+            and company_name == target_name):
                 link_count[company_name] = link_count[company_name] + 1
                 metadata = [company_name, job_type]
                 a = tbody_array[i].tr.th.find('a', class_ = 's xst')
@@ -47,8 +48,8 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
                 metadata.append(a.get_text())                   # thread title
 
                 result.append(metadata)
-                # temp = '{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5])
-                # print(temp)
+                temp = '{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5])
+                print(temp)
 
         i = i + 1
 
@@ -59,8 +60,8 @@ def main():
     scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
-    if len(sys.argv) < 6:
-        print('Usage: python3 oa.py <max-page-count> <max-link-per-company> <path-to-credentials> <sheet-id> <path-to-chromedriver>')
+    if len(sys.argv) < 7:
+        print('Usage: python3 mianjing_oa_target.py <max-page-count> <max-link-per-company> <path-to-credentials> <sheet-id> <path-to-chromedriver> <target-comapny-name>')
         return
     MAX_PAGE = int(sys.argv[1])
     MAX_LINK_PER_COMPANY = int(sys.argv[2])
@@ -68,7 +69,8 @@ def main():
     gc = gspread.authorize(credentials)
     SPREADSHEET_ID = sys.argv[4]
     DRIVER_PATH = sys.argv[5]
-    wks = gc.open_by_key(SPREADSHEET_ID).get_worksheet(2)
+    TARGET_NAME = (sys.argv[6])
+    wks = gc.open_by_key(SPREADSHEET_ID).get_worksheet(4)
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-extensions')
@@ -85,7 +87,7 @@ def main():
         while page <= MAX_PAGE:
             print("Get webpage for " + url + str(page))
             driver.get(url + str(page))
-            if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result) == False):
+            if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, TARGET_NAME) == False):
                 continue
             page = page + 1
             print("rows: " + str(len(result)))
@@ -104,10 +106,9 @@ def main():
         del cell_list
         del result
         del link_count
-        
-        break
-        # print('Start to sleep 3000 seconds...')
-        # time.sleep(3000)
+
+        print('Start to sleep 3000 seconds...')
+        time.sleep(3000)
 
 if __name__ == "__main__":
     main()
