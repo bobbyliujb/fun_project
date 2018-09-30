@@ -38,11 +38,11 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, target_name):
                 continue
 
             company_name = span.u.find_all('b')[3].get_text().lower()
-            if (company_name not in link_count):
-                link_count[company_name] = 0
+            if (company_name != target_name):
+                i = i + 1
+                continue
 
-            if (link_count[company_name] < MAX_LINK_PER_COMPANY
-            and company_name == target_name):
+            if (link_count[company_name] < MAX_LINK_PER_COMPANY):
                 link_count[company_name] = link_count[company_name] + 1
                 metadata = [company_name, job_type, interview_type]
                 a = tbody_array[i].tr.th.find('a', class_ = 's xst')
@@ -84,6 +84,7 @@ def main():
 
     while True:
         link_count = dict()
+        link_count[TARGET_NAME] = 0
         result = []
         page = 1
 
