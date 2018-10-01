@@ -34,8 +34,8 @@
      gcloud config set zone zone-xxx
      gcloud compute --project "project-anme" ssh --zone "zone-xxx" "instance-name"
      crontab -e
-      0 0,6,12,15,18,21 * * * /usr/bin/python3 /home/bobby/referral.py 40 20 /home/bobby/token.json 1NjmnGr0UWyR2RRTERzQ2iBcaZ81BNZjaTWy2-VRESOk /usr/lib/chromium-browser/chromedriver > /home/bobby/py.log 2>&1
-      0 1 * * * /usr/bin/python3 /home/bobby/mianjing_onsite.py 300 500 /home/bobby/token.json 1NjmnGr0UWyR2RRTERzQ2iBcaZ81BNZjaTWy2-VRESOk /usr/lib/chromium-browser/chromedriver > /home/bobby/py_onsite.log 2>&1
-      0 3 * * * /usr/bin/python3 /home/bobby/mianjing_oa.py 300 50 /home/bobby/token.json 1NjmnGr0UWyR2RRTERzQ2iBcaZ81BNZjaTWy2-VRESOk /usr/lib/chromium-browser/chromedriver > /home/bobby/py_oa.log 2>&1
+      0 0,6,12,15,18,21 * * * /usr/bin/python3 /home/bobby/referral.py 40 20 /home/bobby/token.json xxx /usr/lib/chromium-browser/chromedriver > /home/bobby/py.log 2>&1
+      0 1 * * * /usr/bin/python3 /home/bobby/mianjing_onsite.py 300 500 /home/bobby/token.json xxx /usr/lib/chromium-browser/chromedriver > /home/bobby/py_onsite.log 2>&1
+      0 3 * * * /usr/bin/python3 /home/bobby/mianjing_oa.py 300 50 /home/bobby/token.json xxx /usr/lib/chromium-browser/chromedriver > /home/bobby/py_oa.log 2>&1
    ```
  * For personal study only. Never use the data for any kind of business activities!
