@@ -38,22 +38,28 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, target_name):
                 continue
 
             company_name = span.u.find_all('b')[3].get_text().lower()
-            if (company_name != target_name):
+            a = tbody_array[i].tr.th.find('a', class_ = 's xst')
+            if (target_name not in company_name
+            and target_name not in a.get_text().lower()):
                 i = i + 1
                 continue
+
+            if (company_name not in link_count):
+                link_count[company_name] = 0
 
             if (link_count[company_name] < MAX_LINK_PER_COMPANY):
                 link_count[company_name] = link_count[company_name] + 1
                 metadata = [company_name, job_type, interview_type]
-                a = tbody_array[i].tr.th.find('a', class_ = 's xst')
                 metadata.append(re.sub(r'^\s\|', '', span.find_all('b')[5].next_sibling))       # experience level
-                metadata.append(a['href'])                                                      # clickable url
+                clickable_url = 'http://www.1point3acres.com/bbs/' + a['href']                  # clickable url
+                metadata.append(clickable_url)                                                     # clickable url
                 metadata.append(tbody_array[i].tr.find('td', class_ = 'by').em.span.get_text()) # date
                 metadata.append(a.get_text())                   # thread title
 
                 result.append(metadata)
-                temp = '{}\t{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5], metadata[6])
-                print(temp)
+                # temp = '{}\t{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5], metadata[6])
+                # print(temp)
+                print(clickable_url)
 
         i = i + 1
 

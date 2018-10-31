@@ -34,7 +34,7 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, target_name):
                 continue
 
             company_name = span.u.find_all('b')[3].get_text().lower()
-            if (company_name != target_name):
+            if (target_name not in company_name):
                 i = i + 1
                 continue
 

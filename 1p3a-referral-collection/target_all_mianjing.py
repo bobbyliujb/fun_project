@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as BS
 from selenium import webdriver
 from oauth2client.service_account import ServiceAccountCredentials
 
-def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
+def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, target_name):
     if (driver.page_source == None):
         return False
     soup = BS(driver.page_source, 'html.parser')
@@ -18,33 +18,47 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
 
     i = 0
     while i < len(tbody_array):
-        if (tbody_array[i].tr.th.em != None 
-            and tbody_array[i].tr.th.em.get_text() == "找工就业"
-            and tbody_array[i].tr.th.span != None
-            and tbody_array[i].tr.th.span.span != None
-            and tbody_array[i].tr.th.find('a', class_ = 's xst') != None
-            and 'oa' in tbody_array[i].tr.th.find('a', class_ = 's xst').get_text().lower()):
-            span = tbody_array[i].tr.th.span.span
+        # print(tbody_array[i].tr.th.span.u.find_all('b')[2].get_text().lower())
+        if (tbody_array[i].tr.th.span != None
+            and len(tbody_array[i].tr.th.span.find_all('b')) > 4):
+
+            interview_type = tbody_array[i].tr.th.span.find_all('b')[4].get_text().lower()
+            # if ('onsite' not in interview_type and '电面' not in interview_type):
+            #     i = i + 1
+            #     continue
+
+            span = tbody_array[i].tr.th.span
             if (span.u == None):
                 i = i + 1
                 continue
-            company_name = span.u.find_all('b')[2].get_text().lower()
+            
+            job_type = span.u.find_all('b')[2].get_text()
+            # if (job_type != '全职'):
+            #     i = i + 1
+            #     continue
+
+            company_name = span.u.find_all('b')[3].get_text().lower()
+            a = tbody_array[i].tr.th.find('a', class_ = 's xst')
+            if (target_name not in company_name
+            and target_name not in a.get_text().lower()):
+                i = i + 1
+                continue
+
             if (company_name not in link_count):
                 link_count[company_name] = 0
 
             if (link_count[company_name] < MAX_LINK_PER_COMPANY):
                 link_count[company_name] = link_count[company_name] + 1
-                metadata = [company_name]
-                a = tbody_array[i].tr.th.find('a', class_ = 's xst')
-                metadata.append(span.find('font', color = '#F60').b.get_text())   # major
-                metadata.append(span.u.next_sibling)            # experience level
+                metadata = [company_name, job_type, interview_type]
+                
+                metadata.append(re.sub(r'^\s\|', '', span.find_all('b')[5].next_sibling))       # experience level
                 clickable_url = 'http://www.1point3acres.com/bbs/' + a['href']                  # clickable url
                 metadata.append(clickable_url)
                 metadata.append(tbody_array[i].tr.find('td', class_ = 'by').em.span.get_text()) # date
                 metadata.append(a.get_text())                   # thread title
 
                 result.append(metadata)
-                temp = '{}\t{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5])
+                temp = '{}\t{}\t{}\t{}\t{}\t{}'.format(company_name, metadata[1], metadata[2], metadata[3], metadata[4], metadata[5], metadata[6])
                 print(temp)
 
         i = i + 1
@@ -52,12 +66,12 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
     return True
 
 def main():
-    url = 'http://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=145&sortid=311&%1=&sortid=311&page='
+    url = 'https://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=259&sortid=311&%1=&sortid=311&page='
     scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
-    if len(sys.argv) < 6:
-        print('Usage: python3 oa.py <max-page-count> <max-link-per-company> <path-to-credentials> <sheet-id> <path-to-chromedriver>')
+    if len(sys.argv) < 7:
+        print('Usage: python3 mianjing_onsite_target.py <max-page-count> <max-link-per-company> <path-to-credentials> <sheet-id> <path-to-chromedriver> <target-comapny-name>')
         return
     MAX_PAGE = int(sys.argv[1])
     MAX_LINK_PER_COMPANY = int(sys.argv[2])
@@ -65,7 +79,8 @@ def main():
     gc = gspread.authorize(credentials)
     SPREADSHEET_ID = sys.argv[4]
     DRIVER_PATH = sys.argv[5]
-    wks = gc.open_by_key(SPREADSHEET_ID).get_worksheet(1)
+    TARGET_NAME = (sys.argv[6])
+    wks = gc.open_by_key(SPREADSHEET_ID).get_worksheet(4)
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-extensions')
@@ -75,35 +90,41 @@ def main():
 
     while True:
         link_count = dict()
+        link_count[TARGET_NAME] = 0
         result = []
         page = 1
 
         driver = webdriver.Chrome(DRIVER_PATH, chrome_options=options)
         while page <= MAX_PAGE:
             print("Get webpage for " + url + str(page))
-            driver.get(url + str(page))
-            if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result) == False):
+            try:
+                time.sleep(2)
+                driver.get(url + str(page))
+            except:
+                time.sleep(10)
+                continue
+            if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result, TARGET_NAME) == False):
                 continue
             page = page + 1
             print("rows: " + str(len(result)))
-            time.sleep(2)
         driver.quit()
 
-        # row_count = len(result)
-        # col_count = len(result[0])
-        # cell_list = wks.range(2, 1, row_count + 1, col_count)
-        # for i in range(row_count):
-        #     for j in range(col_count):
-        #         cell_list[i * col_count + j].value = result[i][j]
-        # wks.update_cells(cell_list)
+        row_count = len(result)
+        col_count = len(result[0])
+        cell_list = wks.range(2, 1, row_count + 1, col_count)
+        for i in range(row_count):
+            for j in range(col_count):
+                cell_list[i * col_count + j].value = result[i][j]
+        wks.update_cells(cell_list)
 
         # Free memory
         del cell_list
         del result
         del link_count
 
-        print('Start to sleep 3000 seconds...')
-        time.sleep(3000)
+        # print('Start to sleep 3000 seconds...')
+        # time.sleep(3000)
+        break
 
 if __name__ == "__main__":
     main()
