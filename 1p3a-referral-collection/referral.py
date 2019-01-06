@@ -19,7 +19,7 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
     i = 0
     while i < len(tbody_array):
         if (tbody_array[i].tr.th.em != None 
-            and tbody_array[i].tr.th.em.get_text() == "我这里要招人"
+            and "招人" in tbody_array[i].tr.th.em.get_text()
             and tbody_array[i].tr.th.span != None
             and tbody_array[i].tr.th.span.span != None):
             span = tbody_array[i].tr.th.span.span
@@ -33,7 +33,7 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
                 a = tbody_array[i].tr.th.find('a', class_ = 's xst')
                 metadata.append(span.find('font', color = '#F60').b.get_text())   # major
                 metadata.append(span.u.next_sibling)            # experience level
-                metadata.append(a['href'])                      # clickable url
+                metadata.append('http://www.1point3acres.com/bbs/' + a['href'])                      # clickable url
                 metadata.append(tbody_array[i].tr.find('td', class_ = 'by').em.span.get_text()) # date
                 metadata.append(a.get_text())                   # thread title
 
@@ -46,7 +46,7 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
     return True
 
 def main():
-    url = 'http://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=198&sortid=192&%1=&sortid=192&page='
+    url = 'http://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=198&sortid=192&&page='
     scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 

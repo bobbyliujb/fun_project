@@ -22,9 +22,7 @@
  * Get referral information from [1p3a](http://www.1point3acres.com/bbs).
  * Libraries for python3:
    ```
-     pip3 install bs4
-     pip3 install selenium
-     pip3 install oauth2client
+     pip3 install bs4 selenium oauth2client gspread
    ```
  * Use Google [spreadsheet API](https://developers.google.com/sheets/api/quickstart/python?authuser=2) to write content onto personnal spreadsheet.
  * Need chromedriver to run. [Install on Ubuntu](https://askubuntu.com/questions/1004947/how-do-i-use-the-chrome-driver-in-ubuntu-16-04). Set [headless options](https://stackoverflow.com/questions/47596402/selenium-chrome-failed-to-start-exited-abnormally-error) in code.

@@ -42,7 +42,7 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
                 metadata = [company_name, job_type]
                 a = tbody_array[i].tr.th.find('a', class_ = 's xst')
                 metadata.append(re.sub(r'^\s\|', '', span.find_all('b')[5].next_sibling))       # experience level
-                metadata.append(a['href'])                                                      # clickable url
+                metadata.append('http://www.1point3acres.com/bbs/' + a['href'])               # clickable url
                 metadata.append(tbody_array[i].tr.find('td', class_ = 'by').em.span.get_text()) # date
                 metadata.append(a.get_text())                   # thread title
 
