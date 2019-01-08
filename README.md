@@ -11,11 +11,10 @@
  * ~~TODO: Support custom specification for filtering(price, check-interval)~~
 
 ***
-### Auto login(TODO...)
- * Auto login Leetcode every day to win Leetcode coin(= =).
+### Auto login
+ * Auto login Leetcode every day to win 1 Leetcode coin(= =).
  * Use debian crontab to run the py script daily.
- * Use requests to simulate post.
- * BUT! LeetCode's login has some other subsequent operations. I verified login unsuccess because my account was not forced to logout, let along getting the coin.
+ * Use selenium to simulate form filling and button clicking.
 
 ***
 ### Referral Scraping
