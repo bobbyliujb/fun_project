@@ -23,7 +23,7 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
             and len(tbody_array[i].tr.th.span.find_all('b')) > 4):
 
             interview_type = tbody_array[i].tr.th.span.find_all('b')[4].get_text().lower()
-            if ('onsite' not in interview_type and '电面' not in interview_type):
+            if ('onsite' not in interview_type and '电面' not in interview_type and '校园招聘会' not in interview_type and '在线笔试' not in interview_type):
                 i = i + 1
                 continue
 
@@ -33,9 +33,9 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
                 continue
             
             job_type = span.u.find_all('b')[2].get_text()
-            if (job_type != '全职'):
-                i = i + 1
-                continue
+            # if (job_type != '全职'):
+            #     i = i + 1
+            #     continue
 
             company_name = span.u.find_all('b')[3].get_text().lower()
             if (company_name not in link_count):
@@ -59,7 +59,7 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
     return True
 
 def main():
-    url = 'http://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=145&sortid=311&%1=&sortid=311&page='
+    url = 'http://www.1point3acres.com/bbs/forum.php?mod=forumdisplay&fid=259&sortid=311&sortid=311&page='
     scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
@@ -72,7 +72,7 @@ def main():
     gc = gspread.authorize(credentials)
     SPREADSHEET_ID = sys.argv[4]
     DRIVER_PATH = sys.argv[5]
-    wks = gc.open_by_key(SPREADSHEET_ID).get_worksheet(3)
+    wks = gc.open_by_key(SPREADSHEET_ID).get_worksheet(4)
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-extensions')
@@ -92,6 +92,7 @@ def main():
                 time.sleep(5)
                 driver.get(url + str(page))
             except:
+                print("  Failed. Retrying...")
                 time.sleep(15)
                 continue
             if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result) == False):
