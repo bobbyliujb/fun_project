@@ -11,14 +11,15 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
     soup = BS(driver.page_source, 'html.parser')
     section_main = soup.find(id='threadlisttableid')
     if (section_main == None):
+        print("No threadlisttableid found!")
         return False
     tbody_array = section_main.find_all('tbody', id = re.compile('^normalthread'))
     if (tbody_array == None or len(tbody_array) == 0):
+        print("No normalthread tbody found!")
         return False
 
     i = 0
     while i < len(tbody_array):
-        # print(tbody_array[i].tr.th.span.u.find_all('b')[2].get_text().lower())
         if (tbody_array[i].tr.th.span != None
             and len(tbody_array[i].tr.th.span.find_all('b')) > 4):
 
@@ -33,9 +34,9 @@ def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
                 continue
             
             job_type = span.u.find_all('b')[2].get_text()
-            if (job_type != '全职'):
-                i = i + 1
-                continue
+            # if (job_type != '全职'):
+            #     i = i + 1
+            #     continue
 
             company_name = span.u.find_all('b')[3].get_text().lower()
             if (company_name not in link_count):
@@ -80,42 +81,49 @@ def main():
     options.add_argument('--disable-gpu')
     options.add_argument('--no-sandbox')
 
-    while True:
-        link_count = dict()
-        result = []
-        page = 1
+    link_count = dict()
+    result = []
+    page = 1
+    fail_count = 0
 
-        driver = webdriver.Chrome(DRIVER_PATH, chrome_options=options)
-        while page <= MAX_PAGE:
-            print("Get webpage for " + url + str(page))
-            try:
-                time.sleep(5)
-                driver.get(url + str(page))
-            except:
-                time.sleep(15)
-                continue
-            if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result) == False):
-                continue
-            page = page + 1
-            print("rows: " + str(len(result)))
-        driver.quit()
+    driver = webdriver.Chrome(DRIVER_PATH, chrome_options=options)
+    while page <= MAX_PAGE and fail_count < 10:
+        print("Get webpage for " + url + str(page))
+        try:
+            time.sleep(2)
+            driver.get(url + str(page))
+            element = WebDriverWait(driver, 8).until(
+                EC.presence_of_element_located((By.ID, "threadlisttableid"))
+            )
+        except:
+            traceback.print_exc()
+            time.sleep(10)
+            fail_count = fail_count + 1
+            continue
+        if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result) == False):
+            fail_count = fail_count + 1
+            continue
+        page = page + 1
+        fail_count = 0
+        print("rows: " + str(len(result)))
+    driver.quit()
 
-        row_count = len(result)
-        col_count = len(result[0])
-        cell_list = wks.range(2, 1, row_count + 1, col_count)
-        for i in range(row_count):
-            for j in range(col_count):
-                cell_list[i * col_count + j].value = result[i][j]
-        wks.update_cells(cell_list)
+    row_count = len(result)
+    col_count = len(result[0])
+    cell_list = wks.range(2, 1, row_count + 1, col_count)
+    for i in range(row_count):
+        for j in range(col_count):
+            cell_list[i * col_count + j].value = result[i][j]
+    wks.update_cells(cell_list)
+    wks.update_acell("H1", "Update At: " + str(datetime.datetime.now()))
 
-        # Free memory
-        del cell_list
-        del result
-        del link_count
-
-        # print('Start to sleep 3000 seconds...')
-        # time.sleep(3000)
-        break
+    # Free memory
+    del cell_list
+    del result
+    del link_count
+    del wks
+    del gc
+    del credentials
 
 if __name__ == "__main__":
     main()

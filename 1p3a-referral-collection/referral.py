@@ -105,6 +105,7 @@ def main():
             fail_count = fail_count + 1
             continue
         if (parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result) == False):
+            fail_count = fail_count + 1
             continue
         page = page + 1
         fail_count = 0
@@ -118,7 +119,7 @@ def main():
         for j in range(col_count):
             cell_list[i * col_count + j].value = result[i][j]
     wks.update_cells(cell_list)
-    wks.update_acell('H2', str(datetime.datetime.now()))
+    wks.update_acell("H1", "Update At: " + str(datetime.datetime.now()))
 
     # Free memory
     del cell_list
