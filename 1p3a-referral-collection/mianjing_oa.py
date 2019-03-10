@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import sys, re, gspread, time
+import sys, re, gspread, time, traceback, datetime
 from bs4 import BeautifulSoup as BS
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
 from oauth2client.service_account import ServiceAccountCredentials
 
 def parseHtml(driver, link_count, MAX_LINK_PER_COMPANY, result):
