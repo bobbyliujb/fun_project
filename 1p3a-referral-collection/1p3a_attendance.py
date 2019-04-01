@@ -46,6 +46,12 @@ def click_attendance(driver):
     except:
         traceback.print_exc()
 
+def get_points(driver):
+    try:
+        print(driver.find_element_by_id("extcreditmenu").get_attribute('innerHTML'))
+    except:
+        traceback.print_exc()
+
 def main():
     if len(sys.argv) < 3:
         print('Usage: python3 1p3a_attendance.py <username> <password> <driver-path>')
@@ -59,6 +65,7 @@ def main():
         driver = get_driver(DRIVER_PATH)
         login(url, username, password, driver)
         click_attendance(driver)
+        get_points(driver)
     finally:
         driver.quit()
 
