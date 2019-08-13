@@ -23,13 +23,22 @@ def login(url, username, password, driver):
         EC.presence_of_element_located((By.ID, "ls_username"))
     )
     try:
-        driver.find_element_by_id("ls_username").send_keys(username)
-        driver.find_element_by_id("ls_password").send_keys(password)
-        driver.find_element_by_css_selector("#lsform button").click()
+        ls_username = driver.find_element_by_id("ls_username")
+        ls_username.clear()
+        ls_username.send_keys(username)
+        
+        ls_password = driver.find_element_by_id("ls_password")
+        ls_password.clear()
+        ls_password.send_keys(password)
+
+        login_button = driver.find_element_by_css_selector("#lsform button")
+        login_button.click()
+        
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "um"))
         )
     except:
+        print(driver.find_element_by_id("hd").get_attribute('outerHTML'))
         traceback.print_exc()
 
 def click_attendance(driver):
@@ -60,12 +69,12 @@ def main():
     username = sys.argv[1]
     password = sys.argv[2]
     DRIVER_PATH = sys.argv[3]
-    
+
     try:
         driver = get_driver(DRIVER_PATH)
         login(url, username, password, driver)
-        click_attendance(driver)
-        get_points(driver)
+        # click_attendance(driver)
+        # get_points(driver)
     finally:
         driver.quit()
 

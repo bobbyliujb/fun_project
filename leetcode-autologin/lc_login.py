@@ -20,9 +20,9 @@ def login(url, username, password, driver):
     element = WebDriverWait(driver, 10).until(
         EC.invisibility_of_element_located((By.ID, "initial-loading"))
     )
-    driver.find_element_by_id("username-input").send_keys(username)
-    driver.find_element_by_id("password-input").send_keys(password)
-    driver.find_element_by_id("sign-in-button").click()
+    driver.find_element_by_css_selector("input[data-cy='username']").send_keys(username)
+    driver.find_element_by_css_selector("input[data-cy='password']").send_keys(password)
+    driver.find_element_by_css_selector("button[data-cy='sign-in-btn']").click()
     element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "nav-user-app"))
     )
