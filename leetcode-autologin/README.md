@@ -12,5 +12,5 @@ sudo apt-get install chromium-chromedriver    # the driver path should be defaul
 
 ### Usage
 ```bash
-python3 -m venv /home/pi/leetcode && python3 /home/pi/fun_project/leetcode-autologin/lc_login.py <username> <password> /usr/bin/chromedriver > /home/pi/leetcode/lc_login_log
+source /home/pi/leetcode/bin/activate && python3 /home/pi/fun_project/leetcode-autologin/lc_login.py <username> <password> /usr/bin/chromedriver > /home/pi/leetcode/lc_login_log
 ```
