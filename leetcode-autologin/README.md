@@ -6,7 +6,7 @@ python3 -m venv /home/pi/leetcode
 source /home/pi/leetcode/bin/activate
 
 # install dependencies
-pip install selenium
+pip install selenium==3.14.0
 sudo apt-get install chromium-chromedriver    # the driver path should be default in /usr/bin/chromedriver
 ```
 

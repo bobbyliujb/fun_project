@@ -22,7 +22,7 @@ def login(url, username, password, driver, max_retry = 3):
     retry_count = 0
     while retry_count < max_retry:
         driver.get(url)
-        element = WebDriverWait(driver, 10).until(
+        element = WebDriverWait(driver, 15).until(
             EC.invisibility_of_element_located((By.ID, "initial-loading"))
         )
         driver.find_element_by_css_selector("input[data-cy='username']").send_keys(username)
@@ -35,6 +35,7 @@ def login(url, username, password, driver, max_retry = 3):
             return
         except TimeoutException:
             retry_count += 1
+            print("Failed; retry_count = %d" % retry_count)
     print(driver.find_element_by_css_selector("body div").text)
 
 """
@@ -42,7 +43,7 @@ Print status from progress page
 """
 def get_progress(url, driver):
     driver.get(url)
-    element = WebDriverWait(driver, 10).until(
+    element = WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.ID, "ac_total"))
     )
     current_accepted = 0
@@ -61,7 +62,7 @@ Sign off
 """
 def sign_out(url, driver):
     driver.get(url)
-    element = WebDriverWait(driver, 10).until(
+    element = WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.ID, "navbar-right-container"))
     )
     driver.find_element_by_css_selector("#navbar-right-container div:nth-child(5)").click()
