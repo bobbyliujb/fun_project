@@ -62,10 +62,10 @@ Sign off
 def sign_out(url, driver):
     driver.get(url)
     element = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "nav-user-app"))
+        EC.presence_of_element_located((By.ID, "navbar-right-container"))
     )
-    driver.find_element_by_id("nav-user-app").click()
-    driver.find_element_by_css_selector("#nav-user-app span ul .dropdown-view .option-list .list-item:nth-child(3)").click()
+    driver.find_element_by_css_selector("#navbar-right-container div:nth-child(5)").click()
+    driver.find_element_by_css_selector(".ant-dropdown-menu .ant-dropdown-menu-item:nth-child(11)").click()
 
 def main():
     if len(sys.argv) < 3:
