@@ -30,7 +30,7 @@ def login(url, username, password, driver, max_retry = 3):
         driver.find_element_by_css_selector("button[data-cy='sign-in-btn']").click()
         try:
             element = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.ID, "nav-user-app"))
+                EC.presence_of_element_located((By.ID, "navbar-root"))
             )
             return
         except TimeoutException:
